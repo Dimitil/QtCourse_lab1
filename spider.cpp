@@ -7,6 +7,8 @@
 #include <QScreen>
 #include <QColorDialog>
 #include <QFileDialog>
+#include <iostream>
+#include <QtDebug>
 #include "spider.h"
 
 Spider::Spider(QWidget *parent)
@@ -15,22 +17,21 @@ Spider::Spider(QWidget *parent)
     setWindowFlag(Qt::CustomizeWindowHint);
     Qt::WindowFlags f = windowFlags();
     f |= Qt::WindowStaysOnTopHint;
-  //  f |= Qt::WindowSystemMenuHint; // зачем?
-    setWindowFlags(f);
+    setWindowFlags(f | Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
     //Qt::WindowStates s = windowState();
     //s |= Qt::WindowState::WindowMinimized;
     //setWindowState(s);
 
-    QString title = QStringLiteral("Spider");
+    QString title = QObject::tr("Spider");
     setWindowTitle(title);
 
-    QIcon icon("/home/dmitry/cpp/qt/lab1/Images_lab1/spider1.bmp");
+    QIcon icon("./spider1.bmp");
     setWindowIcon(icon);
 
-    QColorDialog cd;
+    QString colorDialogTitle = QObject::tr("Choose background color");
 
-    QColor activBgColor = cd.getColor();
-
+    QColor activBgColor = QColorDialog::getColor(Qt::white, nullptr, colorDialogTitle);
+    //QColor activBgColor = QColorDialog::getColor();
 
     QPalette pal = palette();
 
@@ -42,17 +43,23 @@ Spider::Spider(QWidget *parent)
         pal.setColor(QPalette::Active, QPalette::Window, Qt::red);
     }
 
-    QString fileDialogTitle = QStringLiteral("Choose background");
-    QFileDialog fd;
+    QString fileDialogTitle = QObject::tr("Choose background");
 
-    QString file = fd.getOpenFileName(nullptr, fileDialogTitle, "/home/dmitry/cpp/qt/lab1/Images_lab1/");
+
+    QString file = QFileDialog::getOpenFileName(nullptr, fileDialogTitle, "./Images_lab1/");
     QPixmap bg;
     if (file.isNull())
     {
-        bg.load("/home/dmitry/cpp/qt/lab1/Images_lab1/WomanAndDog.jpg");
+        if (!bg.load("./images_lab1/WomanAndDog.jpg")) {
+            qDebug() << "Cannot load background image";
+            exit(1);
+        }
     }
     else {
-        bg.load(file);
+        if (!bg.load(file)) {
+            qDebug() << "Cannot load background image";
+            exit(2);
+        }
     }
 
     QBrush br(bg);
@@ -60,7 +67,6 @@ Spider::Spider(QWidget *parent)
     setPalette(pal);
 
     setWindowOpacity(0.5);
-
 
     resize(400, 300);
     //move(200, 300);
@@ -73,13 +79,10 @@ Spider::Spider(QWidget *parent)
 
     //setCursor(Qt::PointingHandCursor);
 
-    QPixmap pix("/home/dmitry/cpp/qt/lab1/Images_lab1/cursor1.cur");
-    pix.setMask(QBitmap("/home/dmitry/cpp/qt/lab1/Images_lab1/cursor1.cur")); //тут не понятное место
+    QPixmap pix("./Images_lab1/cursor1.cur");
+    pix.setMask(QBitmap("./Images_lab1/cursor1.cur"));
     spCursor = new QCursor(pix);
     setCursor(*spCursor);
-
-
-
 }
 
 Spider::~Spider()
